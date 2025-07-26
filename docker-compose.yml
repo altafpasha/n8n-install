@@ -4,8 +4,6 @@ services:
   n8n:
     image: n8nio/n8n
     restart: always
-    ports:
-      - "5678:5678"  # Change or remove for reverse proxy setup
     environment:
       - GENERIC_TIMEZONE=${GENERIC_TIMEZONE}
       - TZ=${TZ}
@@ -16,13 +14,19 @@ services:
       - DB_POSTGRESDB_USER=${POSTGRES_USER}
       - DB_POSTGRESDB_SCHEMA=public
       - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      - N8N_HOST=${N8N_HOST}
+      - N8N_PORT=${N8N_PORT}
+      - N8N_PROTOCOL=https
+      - N8N_SECURE_COOKIE=${N8N_SECURE_COOKIE}
     volumes:
       - n8n-data:/home/node/.n8n
+    expose:
+      - "${N8N_PORT}"
     depends_on:
       postgresql:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:5678/ || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:${N8N_PORT} || exit 1"]
       interval: 10s
       timeout: 10s
       retries: 5
@@ -42,6 +46,19 @@ services:
       timeout: 5s
       retries: 5
 
+  caddy:
+    image: caddy:alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+
 volumes:
   n8n-data:
   postgresql-data:
+  caddy_data:
+  caddy_config:
