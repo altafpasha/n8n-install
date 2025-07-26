@@ -7,10 +7,6 @@ services:
     ports:
       - "127.0.0.1:5678:5678"
     environment:
-      - N8N_HOST=${N8N_HOST}
-      - N8N_PROTOCOL=https
-      - N8N_EDITOR_BASE_URL=https://${N8N_HOST}
-      - WEBHOOK_URL=https://${N8N_HOST}/
       - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-Europe/Berlin}
       - TZ=${TZ:-Europe/Berlin}
       - DB_TYPE=postgresdb
@@ -49,4 +45,3 @@ services:
 volumes:
   n8n-data:
   postgresql-data:
-
